@@ -46,3 +46,19 @@ for(i in 1:3){
 
 #relatief cause not all hospitals offer the same service
 
+## loop over treatment codes to set diff
+#calc avg_price
+avg_price <- aggregate(tarief ~ code, data = prices, FUN = mean)
+
+getAvgPrice <- function(avg_price, code){
+  return(avg_price[avg_price$code == code, c("tarief")])
+}
+
+#add diff tarief
+for(i in 1:nrow(prices)){  
+  if (i %% 1000 == 0){
+    print(i)
+  }
+  prices[1,"avg_tarief"] <- getAvgPrice(avg_price, prices[i, "code"])
+  prices[i,"diff_tarief"] <- prices[i,"avg_tarief"] - prices[i,"tarief"]
+}
