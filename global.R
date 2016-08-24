@@ -20,6 +20,13 @@ colors = c("red", "blue")
 
 prices <- read_feather('prices.feather')
 
+# #calculate difference per treatment
+df_diff <- aggregate(tarief ~ omschrijving, data = prices, function(x) return(max(x) - min(x)))
+df_diff <- df_diff[order(df_diff$tarief, decreasing = TRUE),]
+# ggplot(data=df, aes(x=omschrijving, y=tarief)) + geom_bar(stat="identity")
+omschrijving_list <- as.list(as.character(df_diff$omschrijving))
+default_omschrijving <- omschrijving_list[[1]]
+
 m = list(
   l = 300,
   r = 40,
@@ -27,7 +34,6 @@ m = list(
   t = 50,
   pad = 0
 )
-
 
 #top 10
 # desc <- unique(prices$omschrijving)
@@ -58,10 +64,20 @@ m = list(
 # }
 # 
 # #add diff tarief
-# for(i in 1:nrow(prices)){  
+# for(i in 1:nrow(prices)){
 #   if (i %% 1000 == 0){
 #     print(i)
 #   }
-#   prices[1,"avg_tarief"] <- getAvgPrice(avg_price, prices[i, "code"])
-#   prices[i,"diff_tarief"] <- prices[i,"avg_tarief"] - prices[i,"tarief"]
+#   prices[i,"avg_tarief"] <- getAvgPrice(avg_price, prices[i, ]$code)
+#   prices[i,"diff_tarief"] <- prices[i,"avg_tarief"] - prices[i,]$tarief
 # }
+price_diff <- aggregate(diff_tarief ~ naam, data = prices, function(x) return(mean(x)))
+# #cheapest first
+price_diff <- price_diff[order(price_diff$diff_tarief, decreasing = FALSE),]
+
+# len <- aggregate(x = prices$naam, by=list(naam = prices$naam), FUN=length)
+# names(len) <- c("naam", "count")
+# len <- len[order(len$count, decreasing = TRUE),]
+# len <- len[len$count < 500, ]
+
+

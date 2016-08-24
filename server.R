@@ -6,7 +6,6 @@ shinyServer(function(input, output) {
   
   # selecbox omschrijving
   output$selectOmschrijving <- renderUI({
-    omschrijving_list <- as.list(levels(prices$omschrijving))
     selectInput("selectOmschrijving", "Selecteer behandeling", omschrijving_list, selected =  default_omschrijving, width = "100%")
   })
   
@@ -20,18 +19,26 @@ shinyServer(function(input, output) {
   })
   
   #slider
-  output$sliderNaam <- renderUI({
+  output$sliderLength <- renderUI({
     df = dataOmschrijving()
-    sliderInput("sliderNaam", "Selecteer aantal behandelaars", min=1, max=length(df$naam), value=length(df$naam), step=1)
+    sliderInput("sliderLength", "Selecteer aantal behandelaars", min=1, max=length(df$naam), value=length(df$naam), step=1)
   })
   
   dataInput<- reactive({
     #Adjust data based on prod
     df <- dataOmschrijving()
-    length <- input$sliderNaam
-    limit <- nrow(df) - length + 1
-    df <- df[limit:nrow(df),]
-    return(df)
+    length <- input$sliderLength
+    if(is.null(length)){
+      return(df)
+    } else{
+      limit <- nrow(df) - length + 1
+      if(limit >=0){
+        df <- df[limit:nrow(df),]
+        return(df)
+      } else{
+        return(df)
+      }
+    }
   })
   
   output$plot <- renderPlotly({
@@ -59,6 +66,33 @@ shinyServer(function(input, output) {
     #   pp$data[[i]]$text <- hvrtext_fixed
     # }
     pp
+  })
+
+  output$plotcheap <- renderPlotly({
+    length <- nrow(price_diff)
+    df <- price_diff[(length-20):length,]
+    p <- plot_ly(df, x = diff_tarief, y = naam, colors = colors, showlegend = TRUE, type = "bar", orientation = 'h') %>%
+      layout(
+        margin = m,
+        xaxis = list(title = "Afwijking ten opzichte van gemiddeld tarief [euro]"),
+        yaxis = list(title = ""),
+        title='Behandelcentra met gemiddeld goedkoop tarief'
+      )
+    plotly_build(p)
+  })
+  
+  output$plotexp <- renderPlotly({
+    length <- nrow(price_diff)
+    df <- price_diff[1:20,]
+    df <- df[order(df$diff_tarief, decreasing = TRUE),]
+    p <- plot_ly(df, x = diff_tarief, y = naam, colors = colors, showlegend = TRUE, type = "bar", orientation = 'h') %>%
+      layout(
+        margin = m,
+        xaxis = list(title = "Afwijking ten opzichte van gemiddeld tarief [euro]"),
+        yaxis = list(title = ""),
+        title='Behandelcentra met gemiddeld duur tarief'
+      )
+    plotly_build(p)
   })
   
   output$details <- DT::renderDataTable({

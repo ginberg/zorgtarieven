@@ -7,7 +7,7 @@ shinyUI(fluidPage(
     tags$link(rel = "stylesheet", type = "text/css", href = "style.css")
   ),
   # Application title
-  h1("Behoorlijke verschillen in kosten per behandeling per ziekenhuis"),
+  h1("Grote verschillen in kosten per behandeling per ziekenhuis"),
   br(),
   h5("Wat kost een bezoek aan de specialist eigenlijk? En hoeveel betaalt u voor een operatie aan neus- of keelamandelen?
      Veel mensen weten niet wat de prijs is van een behandeling. CZ geeft meer inzicht door het vrijgeven van deze ",
@@ -16,13 +16,27 @@ shinyUI(fluidPage(
   fluidRow(
     column(1),
     column(7, uiOutput("selectOmschrijving")),
-    column(4, uiOutput("sliderNaam"))
+    column(4, uiOutput("sliderLength"))
   ),
-  # Sidebar with a slider input for number of bins
+  # plot
   fluidRow(
     column(1),
     column(10,
            plotlyOutput("plot", height = 800)
+    )
+  ),
+  tags$hr(),
+  fluidRow(
+    column(1),
+    column(10,
+           plotlyOutput("plotcheap", height = 500)
+    )
+  ),
+  tags$hr(),
+  fluidRow(
+    column(1),
+    column(10,
+           plotlyOutput("plotexp", height = 500)
     )
   ),
   tags$hr(),
